@@ -13,5 +13,14 @@ export interface Account {
 export const useAccountsStore = defineStore('accounts', {
   state: () => ({
     accounts: [] as Account[]
-  })
+  }),
+  
+  actions: {
+    addAccount(account: Account) {
+      this.accounts.push(account)
+    },
+    removeAccount(id: string) {
+      this.accounts = this.accounts.filter(acc => acc.id !== id)
+    },
+  },
 })
