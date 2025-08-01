@@ -31,6 +31,7 @@
           placeholder="Логин"
           maxlength="100"
           @blur="saveAccountChanges(account.id)"
+          :class="{ 'is-invalid': errors[account.id]?.login }"
         />
   
         <el-input
@@ -40,6 +41,7 @@
           type="password"
           maxlength="100"
           @blur="saveAccountChanges(account.id)"
+          :class="{ 'is-invalid': errors[account.id]?.password }"
         />
   
         <el-button type="danger" @click="removeAccount(account.id)">
@@ -59,6 +61,19 @@
     string,
     { label: string; type: 'LDAP' | 'Local'; login: string; password: string }
   >>({})
+
+  const errors = reactive<Record<string, { login: boolean; password: boolean }>>({})
+   
+  const validateForm = (id: string) => {
+  const form = accountForms[id]
+  const result = { login: false, password: false }
+
+  if (!form.login) result.login = true
+  if (form.type === 'Local' && !form.password) result.password = true
+
+  errors[id] = result
+  return !result.login && !result.password 
+}
   onMounted(() => {
     store.loadFromLocalStorage()
     store.accounts.forEach(account => {
@@ -68,6 +83,7 @@
       login: account.login,
       password: account.password || ''
     }
+    validateForm(account.id) 
   })
 })
   const addAccount = () => {
@@ -81,16 +97,17 @@
     }
     store.addAccount(newAccount)
     accountForms[id] = { label: '', type: 'LDAP', login: '', password: '' }
+    validateForm(id)
   }
   
   const removeAccount = (id: string) => {
     store.removeAccount(id)
     delete accountForms[id]
+    delete errors[id]
   }
   const saveAccountChanges = (id: string) => {
+  if (!validateForm(id)) return
   const form = accountForms[id]
-  if (!form.login || (form.type === 'Local' && !form.password)) return
-
   const tags = form.label
     .split(';')
     .map(tag => tag.trim())
@@ -122,5 +139,9 @@ store.updateAccount(updatedAccount)
   margin: 16px 0 8px;
   font-weight: bold;
 }
+  .is-invalid :deep(.el-input__wrapper) {
+    box-shadow: 0 0 0 1px red inset !important; 
+    border-color: red !important;
+  }
   </style>
   
