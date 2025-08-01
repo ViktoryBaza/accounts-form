@@ -11,5 +11,5 @@ import AccountsForm from './components/AccountsForm.vue'
 
 
 <style>
-body { margin: 0; font-family: sans-serif; }
+body { margin: 50px; font-family: sans-serif; }
 </style>

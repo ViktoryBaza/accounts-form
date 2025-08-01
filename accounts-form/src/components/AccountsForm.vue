@@ -3,7 +3,7 @@
       <h1>Учетные записи</h1>
       <el-button type="primary" @click="addAccount">Добавить</el-button>
       <div class="account-header">
-      <span>Метки через ;</span>
+      <span>Метки</span>
       <span>Тип записи</span>
       <span>Логин</span>
       <span>Пароль</span>
@@ -14,13 +14,15 @@
         :key="account.id"
         class="account-item"
       >
+      <el-tooltip content="Введите метки через ; (например: admin;test;prod)" placement="top-start">
         <el-input
           v-model="accountForms[account.id].label"
           placeholder="Метки через ;"
           maxlength="50"
           @blur="saveAccountChanges(account.id)"
         />
-  
+      </el-tooltip>
+
         <el-select v-model="accountForms[account.id].type" placeholder="Тип записи"  @change="saveAccountChanges(account.id)">
           <el-option label="LDAP" value="LDAP" />
           <el-option label="Локальная" value="Local" />
@@ -43,7 +45,7 @@
           @blur="saveAccountChanges(account.id)"
           :class="{ 'is-invalid': errors[account.id]?.password }"
         />
-  
+        <div v-show="accountForms[account.id].type !== 'Local'" class="empty-cell"></div>
         <el-button type="danger" @click="removeAccount(account.id)">
           Удалить
         </el-button>
@@ -127,18 +129,23 @@ store.updateAccount(updatedAccount)
   </script>
   
   <style scoped>
+  .account-header,
   .account-item {
-    display: flex;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.5fr 1.5fr 0.8fr;
     gap: 10px;
-    margin: 15px 0;
     align-items: center;
   }
   .account-header {
-  display: flex;
-  gap: 10px;
-  margin: 16px 0 8px;
-  font-weight: bold;
-}
+    font-weight: bold;
+    margin: 16px 0 8px;
+  }
+  .account-item {
+    margin: 10px 0;
+  }
+  .empty-cell {
+    min-height: 35px;  
+  }
   .is-invalid :deep(.el-input__wrapper) {
     box-shadow: 0 0 0 1px red inset !important; 
     border-color: red !important;
